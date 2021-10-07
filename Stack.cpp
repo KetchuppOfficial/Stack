@@ -7,19 +7,16 @@ int Stack_Ctor (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", "Pointer on the stack is NULL", {return ERROR;});
 
-    if ((stack_ptr -> canary_1) == STACK_CANARY_1)
-        return CONSTRUCTED;
-
     Start_Initialization (stack_ptr);
 
     void *raw_ptr = calloc (2 * CANARY_SZ + CAPACITY_STEP * ELEM_SZ, sizeof (char));
     MY_ASSERT (raw_ptr, "void *raw_ptr", "Impossible to allocate enough memory", {return ERROR;});
 
-    *((CANARY *)raw_ptr) = BUFF_CANARY_1;
+    *((canary_t *)raw_ptr) = BUFF_CANARY_1;
 
     stack_ptr -> data = (int *)((char *)raw_ptr + CANARY_SZ);
 
-    *((CANARY *)((char *)raw_ptr + CANARY_SZ + CAPACITY_STEP * ELEM_SZ)) = BUFF_CANARY_2;
+    *((canary_t *)((char *)raw_ptr + CANARY_SZ + CAPACITY_STEP * ELEM_SZ)) = BUFF_CANARY_2;
 
     return NO_ERRORS;
 }
@@ -52,10 +49,10 @@ int Stack_Dtor (struct Stack *stack_ptr)
 
     stack_ptr -> canary_1 = 0;
 
-    *((CANARY *)((char *)(stack_ptr -> data) - CANARY_SZ)) = 0;
-    *((CANARY *)((stack_ptr -> data) + (stack_ptr -> capacity) * ELEM_SZ)) = 0;
+    *((canary_t *)((char *)(stack_ptr -> data) - CANARY_SZ)) = 0;
+    *((canary_t *)((stack_ptr -> data) + (stack_ptr -> capacity) * ELEM_SZ)) = 0;
     free ((char *)(stack_ptr -> data) - CANARY_SZ);
-    stack_ptr -> data = (int *)Err_Ptr;
+    //stack_ptr -> data = (int *)Err_Ptr;
 
     stack_ptr -> size = 0;
     stack_ptr -> capacity = 0;
@@ -71,11 +68,11 @@ int Stack_Push (struct Stack *stack_ptr, int value)
 {
     MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", "Pointer on the stack is NULL", {return ERROR;});
 
-    if ((stack_ptr -> size) < (stack_ptr -> capacity))
-        stack_ptr -> data [stack_ptr -> size++] = value;
+    if ((stack_ptr -> size) >= (stack_ptr -> capacity))
+        MY_ASSERT (Stack_Resize_Up (stack_ptr), "Stack_Resize_Up ()", "Resizing error", {return ERROR;});
 
-    if ((stack_ptr -> size) == (stack_ptr -> capacity))
-        Stack_Resize_Up (stack_ptr);
+    if ((stack_ptr -> size) <= (stack_ptr -> capacity))
+        stack_ptr -> data[stack_ptr -> size++] = value;
 
     return NO_ERRORS;
 }
@@ -84,7 +81,7 @@ int Stack_Resize_Up (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", "Pointer on the stack is NULL", {return ERROR;});
 
-    void *raw_ptr = realloc ((char *)(stack_ptr -> data) - CANARY_SZ, (stack_ptr -> capacity) + 2 * CANARY_SZ + CAPACITY_STEP * ELEM_SZ);
+    void *raw_ptr = realloc ((char *)(stack_ptr -> data) - CANARY_SZ, ((stack_ptr -> capacity) + CAPACITY_STEP) * ELEM_SZ + 2 * CANARY_SZ);
     MY_ASSERT (raw_ptr, "void *raw_ptr", "Impossible to allocate enough memory", {return ERROR;});
 
     char *canary_2_ptr = (char *)raw_ptr + CANARY_SZ + (stack_ptr -> capacity) * ELEM_SZ;
@@ -92,12 +89,48 @@ int Stack_Resize_Up (struct Stack *stack_ptr)
     for (size_t counter = 0; counter < CANARY_SZ + CAPACITY_STEP * ELEM_SZ; counter++)
         *(canary_2_ptr + counter) = 0;
 
-    *((CANARY *)(canary_2_ptr + CAPACITY_STEP * ELEM_SZ)) = STACK_CANARY_2;
+    *((canary_t *)(canary_2_ptr + CAPACITY_STEP * ELEM_SZ)) = BUFF_CANARY_2;
 
     (stack_ptr -> data) = (int *)((char *)raw_ptr + CANARY_SZ);
 
+    (stack_ptr -> capacity) += CAPACITY_STEP;
+
     return NO_ERRORS;
 }
+
+int Stack_Pop (struct Stack *stack_ptr)
+{
+    MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", "Pointer on the stack is NULL", {return ERROR;});
+
+    int value = 0;
+
+    if ((stack_ptr -> size) >= (stack_ptr -> capacity) - 2 * CAPACITY_STEP)
+    {
+        value = stack_ptr -> data[stack_ptr -> size - 1];
+        stack_ptr -> data[stack_ptr -> size - 1] = 0;
+        stack_ptr -> size--;
+    }
+
+    if ((stack_ptr -> size) <= (stack_ptr -> capacity) - 2 * CAPACITY_STEP)
+        MY_ASSERT (Stack_Dump (stack_ptr), "Stack_Resize_Down ()", "Resizing error", {return ERROR;});
+
+    return value;
+}
+
+int Stack_Dump (struct Stack *stack_ptr)
+{
+    MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", "Pointer on the stack is NULL", {return ERROR;});
+
+    stack_ptr -> capacity -= CAPACITY_STEP;
+
+    void *raw_ptr = realloc ((char *)(stack_ptr -> data) - CANARY_SZ, (stack_ptr -> capacity) * ELEM_SZ + 2 * CANARY_SZ);
+    MY_ASSERT (raw_ptr, "void *raw_ptr", "Impossible to allocate enough memory", {return ERROR;});
+
+    *((canary_t *)((char *)raw_ptr + CANARY_SZ + (stack_ptr -> capacity) * ELEM_SZ)) = BUFF_CANARY_2;
+
+    return NO_ERRORS;
+}
+
 ///NOT FOR RELEASE. JUST FOR DEBUG
 void Show_Stack (struct Stack *stack_ptr)
 {
@@ -107,4 +140,5 @@ void Show_Stack (struct Stack *stack_ptr)
         printf ("\tdata[%d] = %d\n", i, (stack_ptr -> data)[i]);
     printf ("SIZE: %d\n", stack_ptr -> size);
     printf ("CAPACITY: %d\n", stack_ptr -> capacity);
+    printf ("CANARY_2: %0x\n", stack_ptr -> canary_2);
 }
