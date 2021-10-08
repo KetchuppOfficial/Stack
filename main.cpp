@@ -1,46 +1,40 @@
 #include "Stack.h"
 #include "Log_File.h"
 
-extern FILE *LOG_FILE;
-///TODO опнбепйю бнгбпюыюелнцн гмювемхъ йнмярпсйрнпю, PUSH х POP х деярпсйрнпю
-///TODO хмхжхюкхгюжхч х пюгпсьемхе я онлныэч memset
-///TODO йндш ньханй б enum
-///TODO ядекюрэ ущь
-///TODO пеюкхгнбюрэ бнглнфмнярэ бйкчвемхъ бшйкчвемхъ бяеу спнбмеи гюыхрш
-///TODO опнбепйю мю жекнярмнярэ ущью х йюмюпеей
-///TODO пеюкхгнбюрэ пюгмше рхош дюммшу
 int main (void)
 {
+    atexit (Close_Log_File);
     if (Open_Log_File () == ERROR)
         return EXIT_FAILURE;
 
-    struct Stack stack;
-
-    Stack_Ctor (&stack);
-
-    for (int i = 0; i < 10; i++)
+    struct Stack stack =
     {
-        Stack_Push (&stack, i + 1);
-        Show_Stack (&stack);
-        printf ("*********************************\n");
-    }
+        #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+        0,
+        #endif
+        NULL,
+        0,
+        0,
+        false,
+        #if SECURITY_LEVEL == 2
+        0,
+        #endif
+        #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+        0
+        #endif
+    };
 
-    int value = 0;
+    STACK_CTOR (&stack);
 
-    for (int i = 0; i < 10; i++)
-    {
-        value = Stack_Pop (&stack);
-        Show_Stack (&stack);
-        printf ("value: %d\n", value);
-        printf ("*********************************\n");
-    }
+    STACK_PUSH (&stack, 2004);
 
+    STACK_PUSH (&stack, 2378);
 
-    Stack_Dtor (&stack);
+    STACK_PUSH (&stack, -3442);
 
-    Close_File (LOG_FILE, "log_file.log");
+    STACK_PUSH (&stack, 4);
+
+    STACK_DTOR (&stack);
 
     return 0;
 }
-
-
