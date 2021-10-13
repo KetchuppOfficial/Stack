@@ -20,6 +20,7 @@ int Open_Log_File (void)
 void Close_Log_File (void)
 {
     Close_File (LOG_FILE, "log_file.log");
+    printf ("Log file is closed seccessfully\n");
 }
 
 int Close_File (FILE *file_ptr, const char *file_name)
@@ -33,7 +34,8 @@ int Close_File (FILE *file_ptr, const char *file_name)
     return NO_ERRORS;
 }
 
-int My_Assert (bool condition, const char *file, const int line, const char *fun_name, const char *var_name, const char *err_name)
+int My_Assert (bool condition, const char *file, const int line,
+               const char *fun_name, const char *var_name, const char *err_name)
 {
     assert (fun_name);
     assert (var_name);
@@ -42,11 +44,11 @@ int My_Assert (bool condition, const char *file, const int line, const char *fun
 
     if (!condition)
     {
-        fprintf (stderr, "File: %s\n",                                   file);
-        fprintf (stderr, "Line: %d\n",                                   line);
-        fprintf (stderr, "Function with error: %s\n",                    fun_name);
-        fprintf (stderr, "Variable or function that caused error: %s\n", var_name);
-        fprintf (stderr, "Error description: %s\n\n",                    err_name);
+        fprintf (LOG_FILE, "File: %s\n",                                   file);
+        fprintf (LOG_FILE, "Line: %d\n",                                   line);
+        fprintf (LOG_FILE, "Function with error: %s\n",                    fun_name);
+        fprintf (LOG_FILE, "Variable or function that caused error: %s\n", var_name);
+        fprintf (LOG_FILE, "Error description: %s\n\n",                    err_name);
 
         return 1;
     }

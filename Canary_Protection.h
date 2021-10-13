@@ -16,6 +16,4 @@ const canary_t DATA_CANARY_2  = 0xDEBAC;
 
 const size_t CANARY_SZ = sizeof (canary_t);
 
-int Check_Canary (struct Stack *stack_ptr);
-
 #endif // CANARY_PROTECTION_H_INCLUDED

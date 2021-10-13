@@ -26,13 +26,17 @@ int main (void)
 
     STACK_CTOR (&stack);
 
-    STACK_PUSH (&stack, 2004);
+    STACK_PUSH (&stack, 1);
 
-    STACK_PUSH (&stack, 2378);
+    STACK_PUSH (&stack, 2000002);
 
-    STACK_PUSH (&stack, -3442);
+    STACK_PUSH (&stack, -34422333);
 
-    STACK_PUSH (&stack, 4);
+    STACK_PUSH (&stack, 4898);
+
+    int value = 0;
+    STACK_POP (&stack, &value);
+    printf ("value: %d\n", value);
 
     STACK_DTOR (&stack);
 

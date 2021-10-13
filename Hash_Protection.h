@@ -7,10 +7,10 @@
         return ERROR;                       \
 }
 
-typedef double hash_t;
+typedef long double hash_t;
 
 const double ZERO_HASH = 3.141592;
-const double EPSILON = 1E-7;
+const double EPSILON = 1E-4;
 
 enum Comparison
 {
@@ -19,10 +19,5 @@ enum Comparison
     EQUAL,
     GREATER
 };
-
-int Check_Hash (struct Stack *stack_ptr);
-hash_t Calc_Hash (struct Stack *stack_ptr);
-int Compare_Double (const double first, const double second);
-int IsNAN (const double value);
 
 #endif // HASH_PROTECTION_H_INCLUDED
