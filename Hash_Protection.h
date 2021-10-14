@@ -7,17 +7,6 @@
         return ERROR;                       \
 }
 
-typedef long double hash_t;
-
-const double ZERO_HASH = 3.141592;
-const double EPSILON = 1E-4;
-
-enum Comparison
-{
-    NOT_EQUAL = -2,
-    LESS,
-    EQUAL,
-    GREATER
-};
+typedef long hash_t;
 
 #endif // HASH_PROTECTION_H_INCLUDED

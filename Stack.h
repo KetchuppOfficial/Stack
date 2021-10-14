@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <limits.h>
+#include <typeinfo.h>
 #include "Log_File.h"
 //-----------------------------------------------
 
@@ -97,6 +98,7 @@
 
 #if SECURITY_LEVEL == 2
     #include "Hash_Protection.h"
+    #define HASH_CHANGE "Hash changed its value unexpectedly"
 #elif SECURITY_LEVEL == 0
     #define CANARY_SZ 0
 #endif
@@ -128,8 +130,8 @@
 //-----------------------------------------------
 //Defining error reports
 #define NULL_STACK "Pointer on the stack is NULL"
-#define UNINITIALISED "It's forbidden to use uninitialized stack"
-#define MEMORY "Impossible to allocate enough memory"
+#define UNINIT_STACK "It's forbidden to use uninitialized stack"
+#define NE_MEM "Impossible to allocate enough memory"
 #define ZERO_POP "It's forbidden to pop stack which size is 0"
 #define NULL_ELEM_PTR "Pointer on the variable to save popped value is NULL"
 #define MULT_CTOR "It's forbidden to initialize stack more than once"
@@ -140,12 +142,12 @@
 const int CAPACITY_STEP = 8;
 const size_t ELEM_SZ = sizeof (ELEM_T);
 
-const ELEM_T Stack_Poison = 89348823;
+const ELEM_T Stack_Poison = (ELEM_T)89053376528;
 
 struct Stack
 {
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    canary_t canary_1;
+    canary_t l_canary;
     #endif
     ELEM_T   *data;
     long     size;
@@ -155,7 +157,7 @@ struct Stack
     hash_t   hash;
     #endif
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    canary_t canary_2;
+    canary_t r_canary;
     #endif
 };
 

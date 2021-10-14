@@ -37,10 +37,8 @@ int Close_File (FILE *file_ptr, const char *file_name)
 int My_Assert (bool condition, const char *file, const int line,
                const char *fun_name, const char *var_name, const char *err_name)
 {
-    assert (fun_name);
-    assert (var_name);
-    assert (err_name);
-    assert (line > 0);
+    if (!LOG_FILE || !fun_name || !var_name || !err_name || line <= 0)
+        return ERROR;
 
     if (!condition)
     {
