@@ -2,7 +2,6 @@
 #define LOG_FILE_H_INCLUDED
 
 #include <stdio.h>
-#include <assert.h>
 
 #define MY_ASSERT(condition, var, description, error)                               \
 {                                                                                   \
