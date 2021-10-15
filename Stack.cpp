@@ -318,6 +318,15 @@ static hash_t Calc_Hash (struct Stack *stack_ptr)
         hash += (hash << 10);
         hash ^= (hash >> 6);
     }
+
+    hash += (unsigned int)(stack_ptr->size);
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+
+    hash += (unsigned int)(stack_ptr->capacity);
+    hash += (hash << 10);
+    hash ^= (hash >> 6);
+
     hash += (hash << 3);
     hash ^= (hash >> 11);
     hash += (hash << 15);
