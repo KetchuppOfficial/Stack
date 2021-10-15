@@ -20,7 +20,7 @@ void Close_Log_File (void);
 int Close_File (FILE *file_ptr, const char *file_name);
 
 static const char PREAMBLE[] = "This is log file of the project \"Hamlet Sorting\".\n"
-                        "This file will help you to find and fix all the errors.\n\n";
+                               "This file will help you to find and fix all the errors.\n\n";
 enum ERRORS
 {
     NO_ERRORS = -100,

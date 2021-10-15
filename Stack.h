@@ -14,78 +14,62 @@
 
 //-----------------------------------------------
 //Defining type
-#define CHAR 0
-#define INT 1
-#define U_INT 2
-#define L_INT 3
-#define U_L_INT 4
-#define L_L_INT 5
+#define CHAR      0
+#define INT       1
+#define U_INT     2
+#define L_INT     3
+#define U_L_INT   4
+#define L_L_INT   5
 #define U_L_L_INT 6
-#define FLOAT 7
-#define DOUBLE 8
-#define L_DOUBLE 9
+#define FLOAT     7
+#define DOUBLE    8
+#define L_DOUBLE  9
 
-#define STACK_TYPE INT
+#define STACK_TYPE L_INT
+#define STACK_FMT  "lu"
 
 #if STACK_TYPE == CHAR
     #define ELEM_T char
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %c\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == INT
     #define ELEM_T int
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %d\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == U_INT
     #define ELEM_T unsigned int
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %u\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == L_INT
     #define ELEM_T long
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %ld\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == U_L_INT
     #define ELEM_T unsigbned long
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %lu\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == L_L_INT
     #define ELEM_T long long
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %lld\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == U_L_L_INT
     #define ELEM_T unsigned long long
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %llu\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == FLOAT
     #define ELEM_T float
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %g\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == DOUBLE
     #define ELEM_T double
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %g\n", (index), (data_src));
 #endif
 
 #if STACK_TYPE == L_DOUBLE
     #define ELEM_T long double
-    #define DATA_OUTPUT(index, data_src, output)                        \
-       fprintf (output, "\tdata[%d] = %Lg\n", (index), (data_src));
 #endif
+
+#define DATA_OUTPUT(index, data_src, output)                                \
+    fprintf (output, "\tdata[%d] = %" STACK_FMT "\n", (index), (data_src));
 //-----------------------------------------------
 
 //-----------------------------------------------
@@ -129,14 +113,14 @@
 
 //-----------------------------------------------
 //Defining error reports
-#define NULL_STACK "Pointer on the stack is NULL"
-#define UNINIT_STACK "It's forbidden to use uninitialized stack"
-#define NE_MEM "Impossible to allocate enough memory"
-#define ZERO_POP "It's forbidden to pop stack which size is 0"
-#define NULL_ELEM_PTR "Pointer on the variable to save popped value is NULL"
-#define MULT_CTOR "It's forbidden to initialize stack more than once"
-#define BAD_RESIZE "It's forbidden to resize down stack which capacity is minimal or less than minimal"
-#define RSZ_ERR "Resizing error"
+#define NULL_STACK     "Pointer on the stack is NULL"
+#define UNINIT_STACK   "It's forbidden to use uninitialized stack"
+#define NE_MEM         "Impossible to allocate enough memory"
+#define ZERO_POP       "It's forbidden to pop stack which size is 0"
+#define NULL_ELEM_PTR  "Pointer on the variable to save popped value is NULL"
+#define MULT_CTOR      "It's forbidden to initialize stack more than once"
+#define BAD_RESIZE     "It's forbidden to resize down stack which capacity is minimal or less than minimal"
+#define RSZ_ERR        "Resizing error"
 //---------------------------------------
 
 const int CAPACITY_STEP = 8;
@@ -149,13 +133,16 @@ struct Stack
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
     canary_t l_canary;
     #endif
+
     ELEM_T   *data;
     long     size;
     long     capacity;
     bool     initialized;
+
     #if SECURITY_LEVEL == 2
     hash_t   hash;
     #endif
+
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
     canary_t r_canary;
     #endif

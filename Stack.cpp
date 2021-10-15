@@ -3,8 +3,8 @@
 
 int Stack_Ctor (struct Stack *stack_ptr)
 {
-    MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", NULL_STACK, ERROR);
-    MY_ASSERT (!stack_ptr->initialized, "stack_ptr->initialized", MULT_CTOR, ERROR);
+    MY_ASSERT (stack_ptr,               "struct Stack *stack_ptr", NULL_STACK, ERROR);
+    MY_ASSERT (!stack_ptr->initialized, "stack_ptr->initialized",  MULT_CTOR,  ERROR);
 
     Start_Initialization (stack_ptr);
 
@@ -13,19 +13,12 @@ int Stack_Ctor (struct Stack *stack_ptr)
 
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
     *((canary_t *)raw_ptr) = DATA_L_CANARY;
+    *((canary_t *)((char *)raw_ptr + CANARY_SZ + CAPACITY_STEP * ELEM_SZ)) = DATA_R_CANARY;
     #endif
 
     stack_ptr->data = (ELEM_T *)((char *)raw_ptr + CANARY_SZ);
 
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    *((canary_t *)((char *)raw_ptr + CANARY_SZ + CAPACITY_STEP * ELEM_SZ)) = DATA_R_CANARY;
-    #endif
-
     stack_ptr->initialized = true;
-
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    CHECK_CANARY (stack_ptr);
-    #endif
 
     #if SECURITY_LEVEL == 2
     stack_ptr->hash = Calc_Hash (stack_ptr);
@@ -40,6 +33,7 @@ static int Start_Initialization (struct Stack *stack_ptr)
 
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
     stack_ptr->l_canary = STACK_L_CANARY;
+    stack_ptr->r_canary = STACK_R_CANARY;
     #endif
 
     stack_ptr->data = NULL;
@@ -48,17 +42,13 @@ static int Start_Initialization (struct Stack *stack_ptr)
 
     stack_ptr->capacity = CAPACITY_STEP;
 
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    stack_ptr->r_canary = STACK_R_CANARY;
-    #endif
-
     return NO_ERRORS;
 }
 
 int Stack_Dtor (struct Stack *stack_ptr)
 {
-    MY_ASSERT (stack_ptr != 0, "struct Stack *stack_ptr", NULL_STACK, ERROR);
-    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized", UNINIT_STACK, ERROR);
+    MY_ASSERT (stack_ptr != 0,         "struct Stack *stack_ptr", NULL_STACK,   ERROR);
+    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
 
     #if SECURITY_LEVEL == 2
     CHECK_HASH (stack_ptr);
@@ -91,15 +81,15 @@ int Stack_Push (struct Stack *stack_ptr, const ELEM_T value)
     CHECK_HASH (stack_ptr);
     #endif
 
+    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+    CHECK_CANARY (stack_ptr);
+    #endif
+
     if ((stack_ptr->size) >= (stack_ptr->capacity))
         MY_ASSERT (Stack_Resize_Up (stack_ptr), "Stack_Resize_Up ()", RSZ_ERR, ERROR);
 
     if ((stack_ptr->size) < (stack_ptr->capacity))
         stack_ptr->data[stack_ptr->size++] = value;
-
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    CHECK_CANARY (stack_ptr);
-    #endif
 
     #if SECURITY_LEVEL == 2
     stack_ptr->hash = Calc_Hash (stack_ptr);
@@ -110,11 +100,15 @@ int Stack_Push (struct Stack *stack_ptr, const ELEM_T value)
 
 static int Stack_Resize_Up (struct Stack *stack_ptr)
 {
-    MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", NULL_STACK, ERROR);
-    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized", UNINIT_STACK, ERROR);
+    MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,   ERROR);
+    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
 
     #if SECURITY_LEVEL == 2
     CHECK_HASH (stack_ptr);
+    #endif
+
+    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+    CHECK_CANARY (stack_ptr);
     #endif
 
     void *raw_ptr = realloc ((char *)(stack_ptr->data) - CANARY_SZ, (stack_ptr->capacity + CAPACITY_STEP) * ELEM_SZ + 2 * CANARY_SZ);
@@ -132,10 +126,6 @@ static int Stack_Resize_Up (struct Stack *stack_ptr)
     (stack_ptr->data) = (ELEM_T *)((char *)raw_ptr + CANARY_SZ);
 
     (stack_ptr->capacity) += CAPACITY_STEP;
-
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    CHECK_CANARY (stack_ptr);
-    #endif
 
     #if SECURITY_LEVEL == 2
     stack_ptr->hash = Calc_Hash (stack_ptr);
@@ -155,6 +145,10 @@ int Stack_Pop (struct Stack *stack_ptr, ELEM_T *elem_ptr)
     CHECK_HASH (stack_ptr);
     #endif
 
+    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+    CHECK_CANARY (stack_ptr);
+    #endif
+
     int value = 0;
 
     if ((stack_ptr->size) >= (stack_ptr->capacity) - 2 * CAPACITY_STEP)
@@ -166,10 +160,6 @@ int Stack_Pop (struct Stack *stack_ptr, ELEM_T *elem_ptr)
 
     if ((stack_ptr->size) <= (stack_ptr->capacity) - 2 * CAPACITY_STEP)
         MY_ASSERT (Stack_Resize_Down (stack_ptr), "Stack_Resize_Down ()", RSZ_ERR, ERROR);
-
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    CHECK_CANARY (stack_ptr);
-    #endif
 
     #if SECURITY_LEVEL == 2
     stack_ptr->hash = Calc_Hash (stack_ptr);
@@ -184,10 +174,14 @@ static int Stack_Resize_Down (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr,               "struct Stack *stack_ptr", NULL_STACK,    ERROR);
     MY_ASSERT (stack_ptr->initialized,  "stack_ptr->initialized",  UNINIT_STACK, ERROR);
-    MY_ASSERT (stack_ptr->capacity > 8, "stack_ptr->capacity",     BAD_RESIZE,    ERROR);
+    MY_ASSERT (stack_ptr->capacity > CAPACITY_STEP, "stack_ptr->capacity",     BAD_RESIZE,    ERROR);
 
     #if SECURITY_LEVEL == 2
     CHECK_HASH (stack_ptr);
+    #endif
+
+    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
+    CHECK_CANARY (stack_ptr);
     #endif
 
     stack_ptr->capacity -= CAPACITY_STEP;
@@ -197,10 +191,6 @@ static int Stack_Resize_Down (struct Stack *stack_ptr)
 
     #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
     *((canary_t *)((char *)raw_ptr + CANARY_SZ + (stack_ptr->capacity) * ELEM_SZ)) = DATA_R_CANARY;
-    #endif
-
-    #if SECURITY_LEVEL == 1 || SECURITY_LEVEL == 2
-    CHECK_CANARY (stack_ptr);
     #endif
 
     #if SECURITY_LEVEL == 2
@@ -247,7 +237,7 @@ int Stack_Dump (struct Stack *stack_ptr, FILE *output)
 static int Check_Canary (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,    ERROR);
-    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
+    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK,  ERROR);
 
     bool is_error = false;
 
@@ -288,7 +278,7 @@ static int Check_Canary (struct Stack *stack_ptr)
 #if SECURITY_LEVEL == 2
 static int Check_Hash (struct Stack *stack_ptr)
 {
-    MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,    ERROR);
+    MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,   ERROR);
     MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
 
     hash_t old_hash = stack_ptr->hash;
