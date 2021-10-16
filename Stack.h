@@ -136,9 +136,11 @@ struct Stack
     #endif
 };
 
-int Stack_Ctor (struct Stack *stack_ptr);
-int Stack_Dtor (struct Stack *stack_ptr);
-int Stack_Push (struct Stack *stack_ptr, const ELEM_T value);
-int Stack_Pop  (struct Stack *stack_ptr, ELEM_T *elem_ptr);
+
+int Start_Initialization (struct Stack *stack_ptr);
+int Stack_Ctor           (struct Stack *stack_ptr);
+int Stack_Dtor           (struct Stack *stack_ptr);
+int Stack_Push           (struct Stack *stack_ptr, const ELEM_T value);
+int Stack_Pop            (struct Stack *stack_ptr, ELEM_T *elem_ptr);
 
 #endif // STACK_H_INCLUDED
