@@ -29,7 +29,7 @@ int Stack_Ctor (struct Stack *stack_ptr)
     return NO_ERRORS;
 }
 
-static int Start_Initialization (struct Stack *stack_ptr)
+int Start_Initialization (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", NULL_STACK, ERROR);
 
