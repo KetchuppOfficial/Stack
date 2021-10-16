@@ -19,6 +19,10 @@ int main (void)
 
     STACK_DTOR (&stack);
 
+    stack.initialized = true;
+
+    STACK_PUSH (&stack, 67);
+
     return 0;
 }
 

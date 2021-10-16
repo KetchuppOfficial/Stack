@@ -76,8 +76,8 @@ int Stack_Dtor (struct Stack *stack_ptr)
 
 int Stack_Push (struct Stack *stack_ptr, const ELEM_T value)
 {
-    MY_ASSERT (stack_ptr, "struct Stack *stack_ptr", NULL_STACK, ERROR);
-    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized", UNINIT_STACK, ERROR);
+    MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,   ERROR);
+    MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
 
     #if SECURITY_LEVEL == 2
     CHECK_HASH (stack_ptr);
@@ -241,36 +241,28 @@ static int Check_Canary (struct Stack *stack_ptr)
     MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,    ERROR);
     MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK,  ERROR);
 
-    bool is_error = false;
-
     if (stack_ptr->l_canary != STACK_L_CANARY)
     {
-        is_error = true;
+        Stack_Dump (stack_ptr, LOG_FILE);
         MY_ASSERT (false, "STACK_L_CANARY", "The first stack canary changed its value", ERROR);
     }
 
     if (stack_ptr->r_canary != STACK_R_CANARY)
     {
-        is_error = true;
+        Stack_Dump (stack_ptr, LOG_FILE);
         MY_ASSERT (false, "STACK_R_CANARY", "The second stack canary changed its value", ERROR);
     }
 
     if (*((canary_t *)((char *)(stack_ptr->data) - CANARY_SZ)) != DATA_L_CANARY)
     {
-        is_error = true;
+        Stack_Dump (stack_ptr, LOG_FILE);
         MY_ASSERT (false, "DATA_L_CANARY",  "The first data canary changed its value", ERROR);
     }
 
     if (*((canary_t *)((char *)(stack_ptr->data) + (stack_ptr->capacity) * ELEM_SZ)) != DATA_R_CANARY)
     {
-        is_error = true;
-        MY_ASSERT (false, "DATA_R_CANARY",  "The second data canary changed its value", ERROR);
-    }
-
-    if (is_error)
-    {
         Stack_Dump (stack_ptr, LOG_FILE);
-        Stack_Dump (stack_ptr, stderr);
+        MY_ASSERT (false, "DATA_R_CANARY",  "The second data canary changed its value", ERROR);
     }
 
     return NO_ERRORS;
@@ -290,7 +282,6 @@ static int Check_Hash (struct Stack *stack_ptr)
     if (old_hash != new_hash)
     {
         Stack_Dump (stack_ptr, LOG_FILE);
-        Stack_Dump (stack_ptr, stderr);
         MY_ASSERT (false, "stack_ptr->hash", HASH_CHANGE, ERROR);
     }
 

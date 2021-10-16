@@ -90,38 +90,26 @@
 
 //-----------------------------------------------
 //Defining macros
-#define STACK_CTOR(ptr)                                                                             \
-{                                                                                                   \
-    MY_ASSERT (Stack_Ctor ((ptr)) != ERROR, "Stack_Ctor ()", "Constructing error", EXIT_FAILURE);   \
+#define STACK_CTOR(ptr)                                                                                 \
+{                                                                                                       \
+    MY_ASSERT (Stack_Ctor ((ptr)) != ERROR,             "Stack_Ctor ()", "Constructing error", 0x01);   \
 }
 
 #define STACK_PUSH(ptr, value)                                                                          \
 {                                                                                                       \
-    MY_ASSERT (Stack_Push ((ptr), (value)) != ERROR, "Stack_Push ()", "Pushing error", EXIT_FAILURE);   \
+    MY_ASSERT (Stack_Push ((ptr), (value)) != ERROR,    "Stack_Push ()", "Pushing error",      0x02);   \
 }
 
 #define STACK_POP(ptr, elem_ptr)                                                                        \
 {                                                                                                       \
-    MY_ASSERT (Stack_Pop ((ptr), (elem_ptr)) != ERROR, "Stack_Pop ()", "Popping error", EXIT_FAILURE);  \
+    MY_ASSERT (Stack_Pop  ((ptr), (elem_ptr)) != ERROR, "Stack_Pop ()",  "Popping error",      0x03);   \
 }
 
-#define STACK_DTOR(ptr)                                                                             \
-{                                                                                                   \
-    MY_ASSERT (Stack_Dtor ((ptr)) != ERROR, "Stack_Dtor ()", "Destructing error", EXIT_FAILURE);    \
+#define STACK_DTOR(ptr)                                                                                 \
+{                                                                                                       \
+    MY_ASSERT (Stack_Dtor ((ptr)) != ERROR,             "Stack_Dtor ()", "Destructing error",  0x04);   \
 }
 //-----------------------------------------------
-
-//-----------------------------------------------
-//Defining error reports
-#define NULL_STACK     "Pointer on the stack is NULL"
-#define UNINIT_STACK   "It's forbidden to use uninitialized stack"
-#define NE_MEM         "Impossible to allocate enough memory"
-#define ZERO_POP       "It's forbidden to pop stack which size is 0"
-#define NULL_ELEM_PTR  "Pointer on the variable to save popped value is NULL"
-#define MULT_CTOR      "It's forbidden to initialize stack more than once"
-#define BAD_RESIZE     "It's forbidden to resize down stack which capacity is minimal or less than minimal"
-#define RSZ_ERR        "Resizing error"
-//---------------------------------------
 
 const int CAPACITY_STEP = 8;
 const size_t ELEM_SZ = sizeof (ELEM_T);
