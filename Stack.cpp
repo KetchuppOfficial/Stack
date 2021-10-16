@@ -1,6 +1,8 @@
 #include "Stack.h"
 #include "Static_Data.h"
 
+extern FILE *LOG_FILE;
+
 int Stack_Ctor (struct Stack *stack_ptr)
 {
     MY_ASSERT (stack_ptr,               "struct Stack *stack_ptr", NULL_STACK, ERROR);
