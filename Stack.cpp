@@ -49,7 +49,7 @@ static int Start_Initialization (struct Stack *stack_ptr)
 
 int Stack_Dtor (struct Stack *stack_ptr)
 {
-    MY_ASSERT (stack_ptr != 0,         "struct Stack *stack_ptr", NULL_STACK,   ERROR);
+    MY_ASSERT (stack_ptr,              "struct Stack *stack_ptr", NULL_STACK,   ERROR);
     MY_ASSERT (stack_ptr->initialized, "stack_ptr->initialized",  UNINIT_STACK, ERROR);
 
     #if SECURITY_LEVEL == 2
