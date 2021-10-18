@@ -12,8 +12,6 @@
     }                                                                               \
 }
 
-//extern FILE *LOG_FILE;
-
 int  My_Assert      (bool condition, const char *file, const int line, const char *fun_name, const char *var_name, const char *err_name);
 int  Open_Log_File  (void);
 void Close_Log_File (void);

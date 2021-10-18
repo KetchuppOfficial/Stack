@@ -25,8 +25,7 @@
 #define DOUBLE    8
 #define L_DOUBLE  9
 
-#define STACK_TYPE L_INT
-#define STACK_FMT  "lu"
+#define STACK_TYPE DOUBLE
 
 #if STACK_TYPE == CHAR
     #define ELEM_T char
@@ -34,38 +33,47 @@
 
 #if STACK_TYPE == INT
     #define ELEM_T int
+    #define STACK_FMT "d"
 #endif
 
 #if STACK_TYPE == U_INT
     #define ELEM_T unsigned int
+    #define STACK_FMT "u"
 #endif
 
 #if STACK_TYPE == L_INT
     #define ELEM_T long
+    #define STACK_FMT "ld"
 #endif
 
 #if STACK_TYPE == U_L_INT
-    #define ELEM_T unsigbned long
+    #define ELEM_T unsigned long
+    #define STACK_FMT "lu"
 #endif
 
 #if STACK_TYPE == L_L_INT
     #define ELEM_T long long
+    #define STACK_FMT "lld"
 #endif
 
 #if STACK_TYPE == U_L_L_INT
     #define ELEM_T unsigned long long
+    #define STACK_FMT "llu"
 #endif
 
 #if STACK_TYPE == FLOAT
     #define ELEM_T float
+    #define STACK_FMT "g"
 #endif
 
 #if STACK_TYPE == DOUBLE
     #define ELEM_T double
+    #define STACK_FMT "g"
 #endif
 
 #if STACK_TYPE == L_DOUBLE
     #define ELEM_T long double
+    #define STACK_FMT "lg"
 #endif
 
 #define DATA_OUTPUT(index, data_src, output)                                \
@@ -113,8 +121,7 @@
 
 const int CAPACITY_STEP = 8;
 const size_t ELEM_SZ = sizeof (ELEM_T);
-
-const ELEM_T Stack_Poison = (ELEM_T)89053376528;
+const unsigned long Stack_Poison = 792647;
 
 struct Stack
 {
@@ -136,11 +143,9 @@ struct Stack
     #endif
 };
 
-
-int Start_Initialization (struct Stack *stack_ptr);
-int Stack_Ctor           (struct Stack *stack_ptr);
-int Stack_Dtor           (struct Stack *stack_ptr);
-int Stack_Push           (struct Stack *stack_ptr, const ELEM_T value);
-int Stack_Pop            (struct Stack *stack_ptr, ELEM_T *elem_ptr);
+int Stack_Ctor (struct Stack *stack_ptr);
+int Stack_Dtor (struct Stack *stack_ptr);
+int Stack_Push (struct Stack *stack_ptr, const ELEM_T value);
+int Stack_Pop  (struct Stack *stack_ptr, ELEM_T *elem_ptr);
 
 #endif // STACK_H_INCLUDED

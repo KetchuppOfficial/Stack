@@ -1,6 +1,8 @@
 #include "Stack.h"
 #include "Log_File.h"
 
+#define hash DO_NOT_CHANGE_HASH_EVER
+
 int main (void)
 {
     atexit (Close_Log_File);
