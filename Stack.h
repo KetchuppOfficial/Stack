@@ -29,6 +29,7 @@
 
 #if STACK_TYPE == CHAR
     #define ELEM_T char
+    #define STACK_FMT "c"
 #endif
 
 #if STACK_TYPE == INT
