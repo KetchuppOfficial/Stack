@@ -34,10 +34,8 @@ You'll see something like this:
 ```bash
 username@machine:~/Stack$ make
 Collecting dependencies for "src/Stack.c"...
-Collecting dependencies for "src/Akinator.c"...
 Collecting dependencies for "src/main.c"...
 Compiling "src/main.c"...
-Compiling "src/Akinator.c"...
 Compiling "src/Stack.c"...
 Collecting dependencies for "src/My_Lib.c"...
 Compiling "src/My_Lib.c"...
@@ -47,11 +45,10 @@ Linking project...
 
 **Step 4:** Running.
 ```bash
-make run IN=input_file_name
+make run
 ```
-The program won't work, if you don't specify **input_file_name**.
 
-## Different type support
+## Different types support
 
 **Stack** supports 11 data types. The default one is **int**. If you want to change it, you can do it in **./include/Stack.h**. Security mode can be chosen there as well.
 
@@ -64,7 +61,7 @@ The program won't work, if you don't specify **input_file_name**.
 #include <stdbool.h>
 #include <math.h>
 
-#define SECURITY_LEVEL 2    // ,---------- Choose security mode here
+#define SECURITY_LEVEL 2    // <---------- Choose security mode here
 
 #define CHAR      0     // char
 #define INT       1     // int
