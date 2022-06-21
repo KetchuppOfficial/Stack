@@ -1,24 +1,53 @@
-CC = gcc -std=c17
+CC     = gcc
+CFLAGS = -Wall -Werror -Wextra -Wshadow -Wswitch-default -Wfloat-equal
 
-CFLAGS = -c -Wall -Werror
+PROJECT = Stack
 
-LOG_LIB = ../My_Lib/My_Lib.a
+BIN      = ./bin/
+SRCDIR   = ./src/
+BUILDDIR = ./build/
 
-all: Stack
+SRC_LIST = main.c Stack.c
+SRC = $(addprefix $(SRCDIR), $(SRC_LIST))
 
-Stack: main.o Stack.o
-	$(CC) Objects/main.o Objects/Stack.o $(LOG_LIB) -o Stack.out
+SUBS := $(SRC)
+SUBS := $(subst $(SRCDIR), $(BUILDDIR), $(SUBS))
 
-main.o: main.c
-	$(CC) $(CFLAGS) main.c -o Objects/main.o
+OBJ  = $(SUBS:.c=.o)
+DEPS = $(SUBS:.c=.d)
 
-Stack.o: Stack.c
-	$(CC) $(CFLAGS) Stack.c -o Objects/Stack.o
+LIBS_LIST = My_Lib
+LIBSDIR = $(addprefix ./, $(LIBS_LIST))
+LIBS = $(addsuffix /*.a, $(LIBSDIR))
 
-run:
-	./Stack.out
+.PHONY: all $(LIBSDIR)
+
+all: $(DEPS) $(OBJ) $(LIBSDIR)
+	@mkdir -p $(BIN)
+	@echo "Linking project..."
+	@$(CC) $(OBJ) $(LIBS) -lm -o $(BIN)$(PROJECT).out
+
+$(LIBSDIR):
+	@$(MAKE) -C $@ --no-print-directory -f Makefile.mak
+
+$(BUILDDIR)%.o: $(SRCDIR)%.c
+	@mkdir -p $(dir $@)
+	@echo "Compiling \"$<\"..."
+	@$(CC) $(CFLAGS) -g $(OPT) -c -I$(LIBSDIR) $< -o $@
+
+include $(DEPS)
+
+$(BUILDDIR)%.d: $(SRCDIR)%.c
+	@echo "Collecting dependencies for \"$<\"..."
+	@mkdir -p $(dir $@)
+	@$(CC) -E $(CFLAGS) -I$(LIBSDIR) $< -MM -MT $(@:.d=.o) > $@
+
+.PHONY: run clean
 
 clean:
-	rm -rf Objects/main.o Objects/Stack.o
-	rm Stack.out
-	rm *.log
+	@echo "Cleaning service files..."
+	@rm -rf $(OBJ) $(DEPS)
+
+run: $(BIN)$(PROJECT).out
+	@echo "Running \"$<\"..."
+	@$(BIN)$(PROJECT).out
